@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OGPリンク生成</title>
+<title>埋め込みリンク生成</title>
 <style>
   *{box-sizing:border-box;}
   body{
     margin:0; background:#1e1f22; color:#dbdee1;
-    font-family:system-ui,sans-serif; padding:24px;
+    font-family:system-ui,sans-serif; padding:20px;
     display:flex; justify-content:center;
   }
   .app{width:100%; max-width:520px;}
@@ -18,7 +18,7 @@
     background:#2b2d31; border:1px solid #3f4147;
     border-radius:10px; padding:16px; margin-bottom:16px;
   }
-  label{display:block; font-size:12px; color:#949ba4; margin:10px 0 4px;}
+  label{display:block; font-size:12px; color:#949ba4; margin:12px 0 4px;}
   label:first-child{margin-top:0;}
   input, textarea, select{
     width:100%; padding:10px; border-radius:6px;
@@ -27,33 +27,38 @@
   }
   input:focus, textarea:focus{border-color:#5865f2;}
   textarea{resize:vertical; min-height:70px;}
-  .row{display:flex; gap:8px;}
-  .row > div{flex:1;}
+  input[type=color]{height:44px;padding:2px;cursor:pointer;}
+  
   button{
-    width:100%; padding:12px; margin-top:12px;
+    width:100%; padding:14px; margin-top:16px;
     border:none; border-radius:6px; cursor:pointer;
-    background:#5865f2; color:#fff; font-size:15px; font-weight:600;
+    background:#5865f2; color:#fff; font-size:16px; font-weight:600;
+    transition: 0.2s;
   }
   button:hover{filter:brightness(1.1);}
-  .btn-dl{background:#248046;}
-  .preview{
-    margin-top:12px; border-left:4px solid #5865f2;
-    background:#2b2d31; border-radius:4px; padding:12px;
+  
+  .result{
+    margin-top:16px; padding:12px; background:#1e1f22;
+    border-radius:6px; border:1px solid #3f4147;
+    display:none;
   }
-  .preview .pt{font-weight:600; margin-bottom:4px;}
-  .preview .pd{color:#b5bac1; font-size:13px; white-space:pre-wrap;}
-  .preview img{max-width:100%; border-radius:4px; margin-top:8px;}
+  .result.show{display:block;}
+  .result p{margin:0 0 8px; font-size:13px; color:#3ba55d; font-weight:bold;}
+  .url-box{display:flex; gap:8px;}
+  .url-box input{flex:1; font-size:12px; color:#00a8fc;}
+  .btn-copy{width:auto; margin:0; padding:0 16px; background:#4f545c; font-size:13px;}
+  
   .note{font-size:11px; color:#80848e; margin-top:8px; line-height:1.5;}
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>🔗 OGPリンク生成</h1>
-  <div class="sub">入力 → HTMLをダウンロード → GitHubにアップロード → Discordに貼る</div>
+  <h1>🔗 埋め込みリンク生成</h1>
+  <div class="sub">入力して生成 → Discordに貼るだけでカード表示</div>
 
   <div class="card">
     <label>タイトル</label>
-    <input id="title" placeholder="例: 今日の告知" maxlength="256">
+    <input id="title" placeholder="例: ��日の告知" maxlength="256">
 
     <label>説明</label>
     <textarea id="desc" placeholder="例: 20時から配信します！" maxlength="4096"></textarea>
@@ -65,19 +70,19 @@
     <input id="site" placeholder="例: マイページ" maxlength="64">
 
     <label>色</label>
-    <input type="color" id="color" value="#5865f2" style="height:44px;padding:2px;cursor:pointer;">
+    <input type="color" id="color" value="#5865f2">
 
-    <button class="btn-dl" onclick="downloadHtml()">⬇ HTMLをダウンロード</button>
+    <button onclick="generate()">✨ リンクを生成</button>
   </div>
 
-  <div class="card">
-    <label>プレビュー（Discord風）</label>
-    <div class="preview" id="preview">
-      <div class="pt" id="pvT" style="color:#80848e;">タイトル</div>
-      <div class="pd" id="pvD"></div>
+  <div class="result" id="result">
+    <p>✅ リンクができました！Discordに貼ってください</p>
+    <div class="url-box">
+      <input type="text" id="outUrl" readonly onclick="this.select()">
+      <button class="btn-copy" onclick="copyUrl()">コピー</button>
     </div>
-    <div class="note">
-      ダウンロードしたHTMLをGitHub Pagesにアップロードすると、Discordに貼ったときカードが表示されます。
+    <div class="note" style="margin-top:10px;">
+      ※ 反映されない時は、URLの後ろに `&v=1` などを付けてみてください（Discordのキャッシュ対策）
     </div>
   </div>
 </div>
@@ -85,70 +90,43 @@
 <script>
 const $ = id => document.getElementById(id);
 
-function updatePreview(){
-  $('pvT').textContent = $('title').value || 'タイトル';
-  $('pvD').textContent = $('desc').value;
-  $('preview').style.borderLeftColor = $('color').value;
-}
-
-['title','desc','color'].forEach(id => {
-  $(id).addEventListener('input', updatePreview);
-});
-
-function esc(s){
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function downloadHtml(){
+function generate() {
   const title = $('title').value.trim();
   const desc  = $('desc').value.trim();
   const img   = $('img').value.trim();
   const site  = $('site').value.trim();
-  const color = $('color').value;
+  const color = $('color').value.replace('#', '');
 
-  if(!title && !desc){
-    alert('タイトルか説明を入れてください');
-    return;
-  }
-  if(img && !/^https:\/\//i.test(img)){
-    alert('画像URLは https:// で始めてください');
+  if (!title && !desc) {
+    alert('タイトルか説明を入力してください');
     return;
   }
 
-  const html = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta property="og:type" content="website">
-<meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(desc)}">
-${img ? `<meta property="og:image" content="${esc(img)}">` : ''}
-${site ? `<meta property="og:site_name" content="${esc(site)}">` : ''}
-<meta name="theme-color" content="${color}">
-<title>${esc(title || 'OGP')}</title>
-<style>
-body{margin:0;background:#1e1f22;color:#dbdee1;font-family:system-ui,sans-serif;padding:24px;display:flex;justify-content:center;}
-.c{background:#2b2d31;border-left:4px solid ${color};border-radius:8px;padding:20px;max-width:520px;width:100%;}
-h1{font-size:20px;margin:0 0 8px;color:#fff;}
-p{color:#b5bac1;line-height:1.6;white-space:pre-wrap;}
-img{max-width:100%;border-radius:6px;margin-top:12px;}
-</style>
-</head>
-<body>
-<div class="c">
-<h1>${esc(title)}</h1>
-<p>${esc(desc)}</p>
-${img ? `<img src="${esc(img)}" alt="">` : ''}
-</div>
-</body>
-</html>`;
+  // あなたのGitHubのURLをベースにします
+  // ※ここにあなたが作ったページのURLが入ります
+  const baseUrl = "https://roburuchan-blip.github.io/discordOGP/";
+  
+  // URLパラメータを作成
+  const params = new URLSearchParams();
+  if (title) params.set('t', title);
+  if (desc)  params.set('d', desc);
+  if (img)   params.set('i', img);
+  if (site)  params.set('s', site);
+  if (color) params.set('c', color);
 
-  const blob = new Blob([html], {type:'text/html'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'index.html';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  // 生成されたURL
+  const finalUrl = baseUrl + '?' + params.toString();
+
+  $('outUrl').value = finalUrl;
+  $('result').classList.add('show');
+  $('result').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyUrl() {
+  const input = $('outUrl');
+  input.select();
+  document.execCommand('copy');
+  alert('コピーしました！Discordに貼ってください');
 }
 </script>
 </body>
