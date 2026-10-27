@@ -1,34 +1,58 @@
 # discordOGP
 
-Discord で URL を貼ったときに表示される OGP カード用の静的 HTML テンプレートです。
+Discord の OGP カードを簡単に作れる静的 HTML ジェネレーターです。
 
-## 使い方
+## これができること
+
+- タイトル
+- 説明文
+- 画像URL
+- サイト名
+- カラーテーマ
+
+を入力して、Discord に貼ったときに見える HTML を生成できます。
+
+## 重要な注意
+
+Discord は JavaScript を実行しません。
+そのため、OGP のカードは `meta property="og:title"` や `meta property="og:description"` などの静的な HTML を見て作ります。
+
+つまり、URL のクエリパラメータだけで動的にOGPを変える方法は、GitHub Pages の通常の静的サイトでは正しく動きません。
+
+正しい使い方は次の通りです。
 
 1. `index.html` を開く
-2. `<head>` 内の以下を編集する
-   - `og:title`
-   - `og:description`
-   - `og:image`
-   - `og:site_name`
-   - `theme-color`
-3. そのまま GitHub Pages または静的ホスティングに配置する
-4. Discord に URL を貼って表示を確認する
+2. フォームに内容を入力する
+3. 「HTMLをダウンロード」を押す
+4. 生成された `index.html` を公開用の静的サイトに置く
+5. Discord にその URL を貼る
 
-## 例
+## GitHub Pages で公開する方法
 
-- タイトルの変更: `meta property="og:title" content="ここにタイトル"`
-- 説明の変更: `meta property="og:description" content="ここに説明文"`
-- 画像の変更: `meta property="og:image" content="https://example.com/image.png"`
+1. GitHub リポジトリを開く
+2. Settings → Pages を開く
+3. Source を `Deploy from a branch` にする
+4. Branch を `main`、Folder を `/root` にする
+5. 公開URLが表示される
 
-## GitHub Pages で公開する場合
+例:
 
-- GitHub リポジトリの Settings → Pages を開く
-- Source を `Deploy from a branch` に設定
-- Branch を `main`、Folder を `/root` にする
-- 公開URLは `https://<ユーザー名>.github.io/discordOGP/` の形式になります
+https://roburuchan-blip.github.io/discordOGP/
 
-## メモ
+## 生成される HTML の例
 
-- Discord はティザー取得のため、`https://` の完全なURLが必要です
-- `og:image` は必須ではありませんが、あるとカードの見栄えが良くなります
-- 画像は HTTPS の公開URLを指定してください
+生成した `index.html` には次のような OGP タグが入ります。
+
+```html
+<meta property="og:title" content="今日の告知">
+<meta property="og:description" content="20時から配信します！">
+<meta property="og:image" content="https://example.com/image.jpg">
+<meta property="og:site_name" content="マイページ">
+<meta name="theme-color" content="#5865f2">
+```
+
+## 補足
+
+- 画像URL は `https://` である必要があります。
+- 画像がない場合でもタイトルと説明だけで動作します。
+- Discord はキャッシュを持つため、反映されないときは URL に `?v=1` のようなクエリをつけて確認してください。
