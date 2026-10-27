@@ -1,122 +1,155 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="discordOGP">
-  <meta property="og:title" content="discordOGP サンプルカード">
-  <meta property="og:description" content="DiscordでURLを貼ったときに見えるOGPカードです。タイトル・説明・画像を簡単に編集して使えます。">
-  <meta property="og:image" content="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80">
-  <meta property="og:image:alt" content="Discord OGP サンプル画像">
-  <meta name="theme-color" content="#5865f2">
-  <meta name="twitter:card" content="summary_large_image">
-
-  <title>discordOGP | サンプル</title>
-
-  <style>
-    :root {
-      --bg: #111827;
-      --panel: #1f2937;
-      --panel-alt: #0f172a;
-      --line: #5865f2;
-      --text: #f3f4f6;
-      --muted: #cbd5e1;
-      --soft: #94a3b8;
-      --tag: rgba(88, 101, 242, 0.18);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      background: radial-gradient(circle at top, #1f2937 0%, var(--bg) 55%);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    }
-
-    .card {
-      width: min(560px, 100%);
-      background: linear-gradient(180deg, rgba(31, 41, 55, 0.98), rgba(17, 24, 39, 0.98));
-      border-left: 4px solid var(--line);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
-    }
-
-    .content {
-      padding: 22px 22px 18px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--tag);
-      color: #dbeafe;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 14px 0 10px;
-      font-size: clamp(1.5rem, 2.8vw, 2rem);
-      line-height: 1.25;
-      color: #ffffff;
-    }
-
-    p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.7;
-      white-space: pre-wrap;
-      font-size: 0.98rem;
-    }
-
-    img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 10px;
-      margin-top: 18px;
-      border: 1px solid rgba(148, 163, 184, 0.22);
-    }
-
-    .note {
-      margin-top: 18px;
-      padding: 12px 14px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      border-radius: 8px;
-      color: var(--soft);
-      font-size: 12px;
-      line-height: 1.7;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGPリンク生成</title>
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:#1e1f22; color:#dbdee1;
+    font-family:system-ui,sans-serif; padding:24px;
+    display:flex; justify-content:center;
+  }
+  .app{width:100%; max-width:520px;}
+  h1{font-size:20px; margin:0 0 4px;}
+  .sub{color:#949ba4; font-size:13px; margin-bottom:20px;}
+  .card{
+    background:#2b2d31; border:1px solid #3f4147;
+    border-radius:10px; padding:16px; margin-bottom:16px;
+  }
+  label{display:block; font-size:12px; color:#949ba4; margin:10px 0 4px;}
+  label:first-child{margin-top:0;}
+  input, textarea, select{
+    width:100%; padding:10px; border-radius:6px;
+    border:1px solid #3f4147; background:#1e1f22; color:#fff;
+    font-size:14px; font-family:inherit; outline:none;
+  }
+  input:focus, textarea:focus{border-color:#5865f2;}
+  textarea{resize:vertical; min-height:70px;}
+  .row{display:flex; gap:8px;}
+  .row > div{flex:1;}
+  button{
+    width:100%; padding:12px; margin-top:12px;
+    border:none; border-radius:6px; cursor:pointer;
+    background:#5865f2; color:#fff; font-size:15px; font-weight:600;
+  }
+  button:hover{filter:brightness(1.1);}
+  .btn-dl{background:#248046;}
+  .preview{
+    margin-top:12px; border-left:4px solid #5865f2;
+    background:#2b2d31; border-radius:4px; padding:12px;
+  }
+  .preview .pt{font-weight:600; margin-bottom:4px;}
+  .preview .pd{color:#b5bac1; font-size:13px; white-space:pre-wrap;}
+  .preview img{max-width:100%; border-radius:4px; margin-top:8px;}
+  .note{font-size:11px; color:#80848e; margin-top:8px; line-height:1.5;}
+</style>
 </head>
 <body>
-  <main class="card">
-    <div class="content">
-      <span class="badge">Discord OGP</span>
-      <h1>discordOGP サンプルカード</h1>
-      <p>DiscordでURLを貼ったときに見えるOGPカードです。
-タイトル・説明・画像を編集して、あなたのサイトや作品の紹介ページをすぐに作れます。</p>
+<div class="app">
+  <h1>🔗 OGPリンク生成</h1>
+  <div class="sub">入力 → HTMLをダウンロード → GitHubにアップロード → Discordに貼る</div>
 
-      <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80" alt="OGP card preview image">
+  <div class="card">
+    <label>タイトル</label>
+    <input id="title" placeholder="例: 今日の告知" maxlength="256">
 
-      <div class="note">
-        ※ このページは静的HTMLです。<br>
-        head 内の meta タグと本文を編集すると、Discordカードの表示内容を変えられます。
-      </div>
+    <label>説明</label>
+    <textarea id="desc" placeholder="例: 20時から配信します！" maxlength="4096"></textarea>
+
+    <label>画像URL（httpsのみ・任意）</label>
+    <input id="img" placeholder="https://example.com/image.png">
+
+    <label>サイト名（任意）</label>
+    <input id="site" placeholder="例: マイページ" maxlength="64">
+
+    <label>色</label>
+    <input type="color" id="color" value="#5865f2" style="height:44px;padding:2px;cursor:pointer;">
+
+    <button class="btn-dl" onclick="downloadHtml()">⬇ HTMLをダウンロード</button>
+  </div>
+
+  <div class="card">
+    <label>プレビュー（Discord風）</label>
+    <div class="preview" id="preview">
+      <div class="pt" id="pvT" style="color:#80848e;">タイトル</div>
+      <div class="pd" id="pvD"></div>
     </div>
-  </main>
+    <div class="note">
+      ダウンロードしたHTMLをGitHub Pagesにアップロードすると、Discordに貼ったときカードが表示されます。
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function updatePreview(){
+  $('pvT').textContent = $('title').value || 'タイトル';
+  $('pvD').textContent = $('desc').value;
+  $('preview').style.borderLeftColor = $('color').value;
+}
+
+['title','desc','color'].forEach(id => {
+  $(id).addEventListener('input', updatePreview);
+});
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function downloadHtml(){
+  const title = $('title').value.trim();
+  const desc  = $('desc').value.trim();
+  const img   = $('img').value.trim();
+  const site  = $('site').value.trim();
+  const color = $('color').value;
+
+  if(!title && !desc){
+    alert('タイトルか説明を入れてください');
+    return;
+  }
+  if(img && !/^https:\/\//i.test(img)){
+    alert('画像URLは https:// で始めてください');
+    return;
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(desc)}">
+${img ? `<meta property="og:image" content="${esc(img)}">` : ''}
+${site ? `<meta property="og:site_name" content="${esc(site)}">` : ''}
+<meta name="theme-color" content="${color}">
+<title>${esc(title || 'OGP')}</title>
+<style>
+body{margin:0;background:#1e1f22;color:#dbdee1;font-family:system-ui,sans-serif;padding:24px;display:flex;justify-content:center;}
+.c{background:#2b2d31;border-left:4px solid ${color};border-radius:8px;padding:20px;max-width:520px;width:100%;}
+h1{font-size:20px;margin:0 0 8px;color:#fff;}
+p{color:#b5bac1;line-height:1.6;white-space:pre-wrap;}
+img{max-width:100%;border-radius:6px;margin-top:12px;}
+</style>
+</head>
+<body>
+<div class="c">
+<h1>${esc(title)}</h1>
+<p>${esc(desc)}</p>
+${img ? `<img src="${esc(img)}" alt="">` : ''}
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
 </body>
 </html>
