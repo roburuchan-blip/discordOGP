@@ -1,125 +1,184 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Discord Webhook Embed 送信</title>
-<style>
-  :root{--bg:#1e1f22;--panel:#2b2d31;--text:#dbdee1;--muted:#949ba4;--accent:#5865f2;--border:#3f4147;}
-  *{box-sizing:border-box;}
-  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;display:flex;justify-content:center;padding:24px;}
-  .app{width:100%;max-width:560px;}
-  h1{font-size:20px;margin:0 0 4px;}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;}
-  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px;}
-  label:first-child{margin-top:0;}
-  input,textarea{width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:#1e1f22;color:var(--text);font-size:14px;outline:none;}
-  input:focus,textarea:focus{border-color:var(--accent);}
-  textarea{resize:vertical;min-height:80px;}
-  .color-wrap{display:flex;gap:8px;align-items:center;}
-  input[type=color]{width:48px;height:38px;padding:2px;border-radius:6px;border:1px solid var(--border);background:#1e1f22;cursor:pointer;}
-  input[type=text]{flex:1;}
-  button{width:100%;padding:12px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px;}
-  button:hover{filter:brightness(1.1);}
-  button:disabled{opacity:.6;cursor:not-allowed;}
-  .status{margin-top:12px;font-size:13px;text-align:center;}
-  .status.ok{color:#57f287;}
-  .status.err{color:#ed4245;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OGP URL 生成</title>
+  <style>
+    :root { --bg:#1e1f22; --panel:#2b2d31; --text:#dbdee1; --muted:#949ba4; --accent:#5865f2; --border:#3f4147; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      display: flex; justify-content: center; padding: 24px;
+    }
+    .app { width: 100%; max-width: 560px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .sub { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 18px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px; margin-bottom: 18px;
+    }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 6px; }
+    label:first-child { margin-top: 0; }
+    input, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: #1e1f22; color: var(--text); font: inherit; outline: none;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { min-height: 90px; resize: vertical; }
+    input[type=color] { height: 42px; padding: 2px; cursor: pointer; }
+    .color-row { display: flex; gap: 8px; align-items: center; }
+    .color-row input[type=text] { flex: 1; }
+    button {
+      margin-top: 16px; width: 100%; padding: 14px; border: none; border-radius: 8px;
+      background: var(--accent); color: white; font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    button:hover { filter: brightness(1.08); }
+    .result {
+      display: none; margin-top: 18px; padding: 12px; background: #1e1f22; border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .result.show { display: block; }
+    .result p { margin: 0 0 8px; color: #3ba55d; font-weight: 700; font-size: 13px; }
+    .url-box { display: flex; gap: 8px; }
+    .url-box input { flex: 1; font-size: 12px; color: #00a8fc; }
+    .copy-btn { width: auto; padding: 0 16px; background: #4f545c; color: white; font-size: 13px; }
+    .preview {
+      margin-top: 12px; background: #2b2d31; border-left: 4px solid var(--accent); border-radius: 8px; padding: 18px;
+    }
+    .preview .title { font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 8px; }
+    .preview .desc { margin: 0; color: #b5bac1; line-height: 1.6; white-space: pre-wrap; }
+    .preview img { display: block; max-width: 100%; border-radius: 8px; margin-top: 12px; }
+    .note { color: var(--muted); font-size: 11px; line-height: 1.6; margin-top: 10px; }
+  </style>
 </head>
 <body>
-<div class="app">
-  <h1>Discord Webhook 送信</h1>
-  <div class="sub">入力して送信 → 指定チャンネルに埋め込みが投稿されます</div>
+  <div class="app">
+    <h1>🔗 Discord OGP URL 生成</h1>
+    <div class="sub">タイトル・説明・画像を入力して、Discord に貼る用の URL を生成します。<br>生成したURLをそのまま Discord に貼ると、OGPカードが表示されます。</div>
 
-  <div class="card">
-    <label for="wh">Webhook URL</label>
-    <input type="url" id="wh" placeholder="https://discord.com/api/webhooks/..." >
+    <div class="card">
+      <label>タイトル</label>
+      <input id="title" maxlength="256" placeholder="例: 今日の告知">
 
-    <label for="title">タイトル</label>
-    <input type="text" id="title" placeholder="例: 今日の告知" maxlength="256">
+      <label>説明</label>
+      <textarea id="desc" maxlength="4096" placeholder="例: 20時から配信します！"></textarea>
 
-    <label for="desc">説明</label>
-    <textarea id="desc" placeholder="例: 20時から配信します！" maxlength="2000"></textarea>
+      <label>画像URL（httpsのみ・任意）</label>
+      <input id="img" placeholder="https://example.com/image.jpg">
 
-    <label for="img">画像URL（任意）</label>
-    <input type="url" id="img" placeholder="https://example.com/image.png">
+      <label>サイト名（任意）</label>
+      <input id="site" maxlength="64" placeholder="例: マイページ">
 
-    <label for="color">色</label>
-    <div class="color-wrap">
-      <input type="color" id="color" value="#5865f2">
-      <input type="text" id="colorHex" value="#5865f2" maxlength="7">
+      <label>色</label>
+      <div class="color-row">
+        <input type="color" id="color" value="#5865f2">
+        <input type="text" id="colorHex" value="#5865f2" maxlength="7">
+      </div>
+
+      <button onclick="generateUrl()">URLを生成</button>
+
+      <div class="result" id="result">
+        <p>✅ 生成できました！Discordに貼ってください</p>
+        <div class="url-box">
+          <input type="text" id="outUrl" readonly onclick="this.select()">
+          <button class="copy-btn" onclick="copyUrl()">コピー</button>
+        </div>
+        <div class="note">※ 反映されないときは URL の最後に <code>&amp;v=1</code> を足して確認してください。</div>
+      </div>
     </div>
 
-    <button id="sendBtn">Discordに送信</button>
-    <div class="status" id="status"></div>
+    <div class="card">
+      <label>プレビュー</label>
+      <div class="preview" id="preview">
+        <div class="title" id="pvTitle">タイトル</div>
+        <p class="desc" id="pvDesc">説明がここに表示されます。</p>
+        <img id="pvImg" src="" alt="" style="display:none;">
+      </div>
+    </div>
   </div>
-</div>
 
-<script>
-const $ = id => document.getElementById(id);
+  <script>
+    const $ = (id) => document.getElementById(id);
 
-// 色の同期
-$('color').addEventListener('input', e => { $('colorHex').value = e.target.value; });
-$('colorHex').addEventListener('input', e => {
-  let v = e.target.value.trim();
-  if (!v.startsWith('#')) v = '#' + v;
-  if (/^#[0-9a-fA-F]{6}$/.test(v)) { $('color').value = v; e.target.value = v; }
-});
-
-// HEX → 10進数（Discordのcolorフィールドは数値）
-function hexToDecimal(hex) {
-  return parseInt(hex.replace('#',''), 16);
-}
-
-$('sendBtn').addEventListener('click', async () => {
-  const wh = $('wh').value.trim();
-  const title = $('title').value.trim();
-  const desc = $('desc').value.trim();
-  const img = $('img').value.trim();
-  const colorHex = $('color').value;
-
-  if (!wh) { setStatus('Webhook URLを入力してください', 'err'); return; }
-  if (!title && !desc) { setStatus('タイトルか説明を入力してください', 'err'); return; }
-
-  // 埋め込みオブジェクト構築
-  const embed = {};
-  if (title) embed.title = title;
-  if (desc) embed.description = desc;
-  embed.color = hexToDecimal(colorHex);
-  if (img) embed.image = { url: img };
-
-  const payload = { embeds: [embed] };
-
-  $('sendBtn').disabled = true;
-  setStatus('送信中...', '');
-
-  try {
-    const res = await fetch(wh, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    $('color').addEventListener('input', () => {
+      $('colorHex').value = $('color').value;
+      updatePreview();
     });
 
-    if (res.ok) {
-      setStatus('送信しました ✓', 'ok');
-    } else {
-      const err = await res.text();
-      setStatus('送信失敗: ' + res.status + ' ' + err.slice(0, 120), 'err');
-    }
-  } catch (e) {
-    setStatus('通信エラー: ' + e.message, 'err');
-  } finally {
-    $('sendBtn').disabled = false;
-  }
-});
+    $('colorHex').addEventListener('input', () => {
+      let v = $('colorHex').value.trim();
+      if (!v.startsWith('#')) v = '#' + v;
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+        $('color').value = v;
+        $('colorHex').value = v;
+        updatePreview();
+      }
+    });
 
-function setStatus(msg, cls) {
-  const s = $('status');
-  s.textContent = msg;
-  s.className = 'status ' + (cls || '');
-}
-</script>
+    function updatePreview() {
+      const title = $('title').value.trim() || 'タイトル';
+      const desc = $('desc').value.trim() || '説明がここに表示されます。';
+      const img = $('img').value.trim();
+      const color = $('color').value;
+
+      $('pvTitle').textContent = title;
+      $('pvDesc').textContent = desc;
+      $('preview').style.borderLeftColor = color;
+
+      if (img) {
+        $('pvImg').src = img;
+        $('pvImg').style.display = 'block';
+      } else {
+        $('pvImg').src = '';
+        $('pvImg').style.display = 'none';
+      }
+    }
+
+    ['title', 'desc', 'img'].forEach((id) => {
+      $(id).addEventListener('input', updatePreview);
+    });
+
+    function generateUrl() {
+      const title = $('title').value.trim();
+      const desc = $('desc').value.trim();
+      const img = $('img').value.trim();
+      const site = $('site').value.trim();
+      const color = $('color').value.replace('#', '');
+
+      if (!title && !desc) {
+        alert('タイトルか説明を入れてください');
+        return;
+      }
+
+      if (img && !/^https:\/\//i.test(img)) {
+        alert('画像URLは https:// で始めてください');
+        return;
+      }
+
+      const baseUrl = 'https://roburuchan-blip.github.io/discordOGP/card.html';
+      const params = new URLSearchParams();
+      if (title) params.set('t', title);
+      if (desc) params.set('d', desc);
+      if (img) params.set('i', img);
+      if (site) params.set('s', site);
+      if (color) params.set('c', color);
+
+      const finalUrl = baseUrl + '?' + params.toString();
+      $('outUrl').value = finalUrl;
+      $('result').classList.add('show');
+      $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function copyUrl() {
+      const input = $('outUrl');
+      input.select();
+      document.execCommand('copy');
+      alert('URLをコピーしました。Discordに貼ってください。');
+    }
+
+    updatePreview();
+  </script>
 </body>
 </html>
